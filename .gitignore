@@ -1,0 +1,28 @@
+# gradle
+########
+.gradle/
+# eclipse
+#########
+.project
+.classpath
+.settings/
+# idea
+######
+*.ipr
+*.iws
+.idea/
+# netbeans
+##########
+.nb-gradle/
+# sublime
+##########
+*.sublime-project
+*.sublime-workspace
+# vscode
+##########
+.vscode/
+# extra
+#######
+build/
+bin/
+*.log

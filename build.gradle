@@ -1,0 +1,86 @@
+//  Copyright (c) 2018 Gonzalo Müller Bravo.
+//  Licensed under the MIT License (MIT), see LICENSE.txt
+
+plugins {
+  id 'all.shared.gradle.project-style-checker' version '1.0.2'
+  id 'com.gradle.plugin-publish' version '0.10.0'
+  id 'groovy'
+  id 'jacoco'
+}
+
+repositories {
+  jcenter()
+  maven {
+    url 'https://dl.bintray.com/gmullerb/all.shared.gradle'
+  }
+}
+
+dependencies {
+  compile gradleApi()
+  testCompile 'all.shared.gradle:spy-project-factory:+'
+  testCompile 'org.junit.jupiter:junit-jupiter-api:+'
+  testRuntime 'org.junit.jupiter:junit-jupiter-engine:+'
+}
+
+final PLUGIN_SITE = 'https://github.com/gmullerb/code-common-tasks/'
+
+apply plugin: 'all.shared.gradle.code-common-tasks'
+
+// Plugin settings
+//////////////////
+
+pluginBundle {
+  website = PLUGIN_SITE
+  vcsUrl = PLUGIN_SITE
+  description = 'A Common Set of Gradle\'s Tasks for Backend\'s and Frontend\'s Development'
+  tags = ['backend', 'backend code', 'frontend', 'frontend code', 'fullstack code',
+    'code style', 'coding style', 'coding standards', 'code quality', 'tdd', 'testing' , 'code coverage',
+    'assess', 'assessMain', 'assessTest', 'assessUnitTest', 'test', 'unitTest', 'integrationTest', 'unit test',
+    'integration test', 'assemble', 'build', 'documentation', 'code assessment', 'code testing', 'code verification',
+    'code documentation', 'best practices', 'jacoco', 'codenarc', 'checkstyle', 'pmd', 'js', 'js code', 'java',
+    'java code', 'groovy', 'groovy code', 'nodejs', 'nodejs code', 'npm task']
+  plugins {
+    thePlugin {
+      id = project.hasProperty('PLUGIN_ID')
+        ? property('PLUGIN_ID')
+        : 'Set plugin id'
+      displayName = 'Code\'s Common Tasks plugin'
+    }
+  }
+}
+
+// Task settings
+////////////////
+
+test {
+  useJUnitPlatform()
+}
+
+jacocoTestCoverageVerification {
+  // jacocoTestCoverageVerification task settings
+  violationRules {
+    rule {
+      element = 'BUNDLE'
+      limit {
+        counter = 'BRANCH'
+        value = 'COVEREDRATIO'
+        minimum = 0.925
+      }
+    }
+    rule {
+      element = 'BUNDLE'
+      limit {
+        counter = 'INSTRUCTION'
+        value = 'COVEREDRATIO'
+        minimum = 0.875
+      }
+    }
+  }
+  // gradle task settings
+  shouldRunAfter jacocoTestReport
+}
+
+// Default task
+///////////////
+
+defaultTasks 'assessCommon', 'assessGradle', 'build'

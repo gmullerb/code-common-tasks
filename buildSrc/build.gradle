@@ -1,0 +1,13 @@
+//  Copyright (c) 2018 Gonzalo Müller Bravo.
+//  Licensed under the MIT License (MIT), see LICENSE.txt
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['../src/main/groovy']
+        }
+        resources {
+            srcDirs = ['../src/main/resources']
+        }
+    }
+}
