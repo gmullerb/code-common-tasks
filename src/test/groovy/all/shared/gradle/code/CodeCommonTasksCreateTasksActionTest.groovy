@@ -27,11 +27,11 @@ final class CodeCommonTasksCreateTasksActionTest {
     final CodeCommonTasksExtension extension = new CodeCommonTasksExtension()
     final CodeCommonTasksCreateTasksAction action = new CodeCommonTasksCreateTasksAction(extension)
     final Project spyProject = SpyProjectFactory.build()
-    extension.toolsForMainAssess.each { spyProject.tasks.create(it) }
-    extension.toolsForTestAssess.each { spyProject.tasks.create(it) }
+    extension.tasksForMainAssess.each { spyProject.tasks.create(it) }
+    extension.tasksForTestAssess.each { spyProject.tasks.create(it) }
     spyProject.tasks.create(extension.unitTestTask)
     spyProject.tasks.create(extension.assembleTask)
-    extension.toolsForDocumentation.each { spyProject.tasks.create(it) }
+    extension.tasksForDocumentation.each { spyProject.tasks.create(it) }
 
     action.execute(spyProject)
 
@@ -66,13 +66,13 @@ final class CodeCommonTasksCreateTasksActionTest {
     action.execute(spyProject)
 
     verify(spyProject.logger)
-      .error(eq('Task {} is not defined, and can not be created since dependencies {} are not defined'),
+      .error(eq('{} task is not defined, and can not be created since not even one of dependencies {} are not found'),
         eq(extension.assessTask), any(Iterable))
     verify(spyProject.logger)
-      .error(eq('Task {} is not defined, and can not be created since dependencies {} are not defined'),
+      .error(eq('{} task is not defined, and can not be created since not even one of dependencies {} are not found'),
         eq(extension.coverageTask), any(Iterable))
     verify(spyProject.logger)
-      .error(eq('Task {} is not defined, and can not be created since dependencies {} are not defined'),
+      .error(eq('{} task is not defined, and can not be created since not even one of dependencies {} are not found'),
         eq(extension.checkTask), any(Iterable))
     verifyNoMoreInteractions(spyProject.logger)
   }

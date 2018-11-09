@@ -18,32 +18,33 @@ class CodeCommonTasksExtension {
   public static final String DOCUMENTATION_TYPE_TASK_PROPERTY = 'documentationType'
   public static final String REPORT_LOCATION_TASK_PROPERTY = 'reportAt'
 
-  String groupForAssessTasks = 'Code Assessment'
-  String assessTask = 'assess'
-  String assessMainTask = 'assessMain'
-  String assessTestTask = 'assessTest'
-  String assessUnitTestTask = 'assessUnitTest'
-  String assessIntegrationTestTask = 'assessIntegrationTest'
-  Iterable<String> toolsForMainAssess = ['codenarcMain', 'checkstyleMain', 'pmdMain']
-  Iterable<String> toolsForTestAssess = ['codenarcTest', 'checkstyleTest', 'pmdTest']
-  Iterable<String> toolsForCoverage = ['jacocoTestReport', 'jacocoTestCoverageVerification']
-  Iterable<String> toolsForDocumentation = ['javadoc', 'groovydoc']
+  String groupForAssessTasks = CodeCommonTasksConstants.GROUP_FOR_ASSESS_TASKS
+  String assessTask = CodeCommonTasksConstants.ASSESS_TASK
+  String assessMainTask = CodeCommonTasksConstants.ASSESS_MAIN_TASK
+  String assessTestTask = CodeCommonTasksConstants.ASSESS_TEST_TASK
+  String assessUnitTestTask = CodeCommonTasksConstants.ASSESS_UNIT_TEST_TASK
+  String assessIntegrationTestTask = CodeCommonTasksConstants.ASSESS_INTEGRATION_TEST_TASK
+  Iterable<String> tasksForAssess = [CodeCommonTasksConstants.ASSESS_MAIN_TASK, CodeCommonTasksConstants.ASSESS_TEST_TASK, 'assessLocal']
+  Iterable<String> tasksForMainAssess = ['codenarcMain', 'checkstyleMain', 'pmdMain', 'assessCss']
+  Iterable<String> tasksForTestAssess = ['codenarcTest', 'checkstyleTest', 'pmdTest']
+  Iterable<String> tasksForCoverage = ['jacocoTestReport', 'jacocoTestCoverageVerification']
+  Iterable<String> tasksForDocumentation = ['javadoc', 'groovydoc']
 
-  String groupForTestTasks = 'Code Testing'
-  String testTask = 'test'
-  String unitTestTask = 'unitTest'
-  String integrationTestTask = 'integrationTest'
+  String groupForTestTasks = CodeCommonTasksConstants.GROUP_FOR_TEST_TASKS
+  String testTask = CodeCommonTasksConstants.TEST_TASK
+  String unitTestTask = CodeCommonTasksConstants.UNIT_TEST_TASK
+  String integrationTestTask = CodeCommonTasksConstants.INTEGRATION_TEST_TASK
 
-  String groupForVerificationTasks = 'Code Verification'
-  String checkTask = 'check'
-  String coverageTask = 'coverage'
+  String groupForVerificationTasks = CodeCommonTasksConstants.GROUP_FOR_VERIFICATION_TASKS
+  String checkTask = CodeCommonTasksConstants.CHECK_TASK
+  String coverageTask = CodeCommonTasksConstants.COVERAGE_TASK
 
-  String groupForBuildTasks = 'Build'
-  String assembleTask = 'assemble'
-  String buildTask = 'build'
+  String groupForBuildTasks = CodeCommonTasksConstants.GROUP_FOR_BUILD_TASKS
+  String assembleTask = CodeCommonTasksConstants.ASSEMBLE_TASK
+  String buildTask = CodeCommonTasksConstants.BUILD_TASK
 
-  String groupForDocumentationTasks = 'Code Documentation'
-  String documentationTask = 'doc'
+  String groupForDocumentationTasks = CodeCommonTasksConstants.GROUP_FOR_DOCUMENTATION_TASKS
+  String documentationTask = CodeCommonTasksConstants.DOCUMENTATION_TASK
 
   private void establishDescription(final Task task, final String description) {
     if (!task.description) {
@@ -84,7 +85,7 @@ class CodeCommonTasksExtension {
       task.doLast new LogMessageAction("See coverage report at ${task.property(COVERAGE_REPORT_LOCATION_TASK_PROPERTY)}")
     }
     else {
-      final CoverageTasksDetails details = CoverageTasksDetails.of(task.project.tasks, toolsForCoverage)
+      final CoverageTasksDetails details = CoverageTasksDetails.of(task.project.tasks, tasksForCoverage)
       if (details.locations) {
         task.doLast new LogMessageAction("See coverage report at $details.locations")
       }
@@ -94,7 +95,7 @@ class CodeCommonTasksExtension {
   private void complementTest(final Task task) {
     logReportLocation(task)
     logCoverageReportLocation(task)
-    toolsForCoverage.each {
+    tasksForCoverage.each {
       if (hasTask(task, it)) {
         task.finalizedBy(it)
       }
@@ -118,16 +119,15 @@ class CodeCommonTasksExtension {
 
   void complementAssessTask(final Task task) {
     task.group = groupForAssessTasks
-    establishDescription(task, 'Analyze and assess code (Main & Test).')
-    dependsOnTask(task, assessMainTask)
-    dependsOnTask(task, assessTestTask)
+    establishDescription(task, 'Analyze and assess code (Main, Test & Local).')
+    tasksForAssess.each { dependsOnTask(task, it) }
     log(task)
   }
 
   void complementAssessMainTask(final Task task) {
     establishDescription(task, 'Analyze and assess Main code.')
     task.group = groupForAssessTasks
-    toolsForMainAssess.each { dependsOnTask(task, it) }
+    tasksForMainAssess.each { dependsOnTask(task, it) }
     log(task)
   }
 
@@ -135,7 +135,7 @@ class CodeCommonTasksExtension {
     task.group = groupForAssessTasks
     establishDescription(task, 'Analyze and assess Test code (Unit & Integration).')
     if (!hasTask(task, assessUnitTestTask) && !hasTask(task, assessIntegrationTestTask)) {
-      toolsForTestAssess.each { dependsOnTask(task, it) }
+      tasksForTestAssess.each { dependsOnTask(task, it) }
     }
     else {
       dependsOnTask(task, assessUnitTestTask)
@@ -242,14 +242,14 @@ class CodeCommonTasksExtension {
 
   void complementDocumentationTask(final Task task) {
     task.group = groupForDocumentationTasks
-    toolsForDocumentation.each { dependsOnTask(task, it) }
+    tasksForDocumentation.each { dependsOnTask(task, it) }
     if (hasTask(task, assessMainTask)) {
       task.shouldRunAfter assessMainTask
     }
     else {
       shouldRunAfterTask(task, assessMainTask)
     }
-    final DocTasksDetails docTasks = DocTasksDetails.of(task.project.tasks, toolsForDocumentation)
+    final DocTasksDetails docTasks = DocTasksDetails.of(task.project.tasks, tasksForDocumentation)
     if (!task.description) {
       task.description = task.hasProperty(DOCUMENTATION_TYPE_TASK_PROPERTY)
         ? "Generates ${task.property(DOCUMENTATION_TYPE_TASK_PROPERTY)} documentation for Main code."

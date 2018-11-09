@@ -29,22 +29,23 @@ class CodeCommonTasksCreateTasksAction implements Action<Project> {
       }
       else {
         if (required) {
-          project.logger.error('Task {} is not defined, and can not be created since dependencies {} are not defined', taskName, bindingTasks)
+          project.logger.error('{} task is not defined, and can not be created since not even one of dependencies {} are not found',
+            taskName, bindingTasks)
         }
       }
     }
   }
 
   void execute(final Project project) {
-    createTaskIfBinding(extension.toolsForMainAssess, project, extension.assessMainTask, false)
-    createTaskIfBinding([extension.assessUnitTestTask, extension.assessIntegrationTestTask] + extension.toolsForTestAssess,
+    createTaskIfBinding(extension.tasksForMainAssess, project, extension.assessMainTask, false)
+    createTaskIfBinding([extension.assessUnitTestTask, extension.assessIntegrationTestTask] + extension.tasksForTestAssess,
       project, extension.assessTestTask, false)
-    createTaskIfBinding([extension.assessMainTask, extension.assessTestTask], project, extension.assessTask)
+    createTaskIfBinding(extension.tasksForAssess, project, extension.assessTask)
     createTaskIfBinding([extension.unitTestTask, extension.integrationTestTask], project, extension.testTask, false)
-    createTaskIfBinding([extension.testTask] + extension.toolsForCoverage, project, extension.coverageTask)
+    createTaskIfBinding([extension.testTask] + extension.tasksForCoverage, project, extension.coverageTask)
     createTaskIfBinding([extension.assessTask, extension.testTask, extension.coverageTask, extension.integrationTestTask],
       project, extension.checkTask)
     createTaskIfBinding([extension.assembleTask], project, extension.buildTask, false)
-    createTaskIfBinding(extension.toolsForDocumentation, project, extension.documentationTask, false)
+    createTaskIfBinding(extension.tasksForDocumentation, project, extension.documentationTask, false)
   }
 }

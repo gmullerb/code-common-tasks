@@ -28,15 +28,20 @@ Have a "same" set of Gradle's Tasks for Backend's development and Frontend's dev
 **Code Assessment** group: contains code assessment tasks:
 
 * `assess` task: for assessing the code (Main and Test).
-  * It will be automatically created if it does not exist, and `assessMain` or `assessTest` are present.
+  * It will be automatically created if it does not exist, and `assessMain`, `assessTest` or `assessLocal` are present.
+  * It will depend on:
+    * `assessMain`, if present.
+    * `assessTest`, if present.
+    * `assessLocal`, if present.
 * `assessMain` task: for assessing Main code.
-  * It will be created if it does not exist and `codenarcMain`, `checkstyleMain` or `pmdMain` are present.
+  * It will be automatically created if it does not exist and `codenarcMain`, `checkstyleMain`, `pmdMain` or `assessCss` are present.
   * It will depend on:
     * `codenarcMain`, if present.
     * `checkstyleMain`, if present.
     * `pmdMain`, if present.
+    * `assessCss`, if present.
 * `assessTest` task: for assessing Test code (Unit and Integration).
-  * It will be automatically created if it does not exist, and `assessUnitTest`, `assessIntegrationTest` or `codenarcTest`, `checkstyleTest` or `pmdTest` are present.
+  * It will be automatically created if it does not exist, and `assessUnitTest`, `assessIntegrationTest`, `codenarcTest`, `checkstyleTest` or `pmdTest` are present.
   * It will depend on:
     * `assessUnitTest`, if present.
     * `assessIntegrationTest`, if present.
@@ -153,10 +158,11 @@ These values are defined in [`CodeCommonTasksExtension`](src/main/groovy/all/sha
   codeCommonTasks.assessTestTask = 'assessTest'
   codeCommonTasks.assessUnitTestTask = 'assessUnitTest'
   codeCommonTasks.assessIntegrationTestTask = 'assessIntegrationTest'
-  codeCommonTasks.toolsForMainAssess = ['codenarcMain', 'checkstyleMain', 'pmdMain']
-  codeCommonTasks.toolsForTestAssess = ['codenarcTest', 'checkstyleTest', 'pmdTest']
-  codeCommonTasks.toolsForCoverage = ['jacocoTestReport', 'jacocoTestCoverageVerification']
-  codeCommonTasks.toolsForDocumentation = ['javadoc', 'groovydoc']
+  codeCommonTasks.tasksForAssess = ['assessMain', 'assessTest', 'assessLocal']
+  codeCommonTasks.tasksForMainAssess = ['codenarcMain', 'checkstyleMain', 'pmdMain', 'assessCss']
+  codeCommonTasks.tasksForTestAssess = ['codenarcTest', 'checkstyleTest', 'pmdTest']
+  codeCommonTasks.tasksForCoverage = ['jacocoTestReport', 'jacocoTestCoverageVerification']
+  codeCommonTasks.tasksForDocumentation = ['javadoc', 'groovydoc']
 
   codeCommonTasks.groupForTestTasks = 'Code Testing'
   codeCommonTasks.testTask = 'test'
@@ -203,6 +209,7 @@ Due to delays in the approval on [Gradle Plugin Repository](https://plugins.grad
 ```
 
 > [1] Waited around 5 days for publish's approval of the plugin without answer (new policies and more delays).  
+> [1] Due to new Gradle Plugin Repository policies, delays of several days, without answer, for approval of the plugin publication can happen.
 > For an actual use example, see [basecode - settings.gradle](https://github.com/gmullerb/basecode/blob/master/settings.gradle).
 
 #### Using only applying plugins
@@ -356,7 +363,7 @@ task unitTest(type: Test) {
 
 For Coverage report location in `unitTest` or `test` tasks, define `coverageReportAt`, e.g.:
 
-* For some external tools defined in `codeCommonTasks.toolsForCoverage` these values are automatically "set":
+* For some external tools defined in `codeCommonTasks.tasksForCoverage` these values are automatically "set":
   * jacocoTestReport.
   * `coverageReportAt` overrides this values.
 
@@ -368,7 +375,7 @@ task unitTest(type: Test) {
 
 For Documentation in `doc` tasks, define `documentationAt` and `documentationType`, e.g.:
 
-* For some external tools defined in `codeCommonTasks.toolsForDocumentation` these values are automatically "set":
+* For some external tools defined in `codeCommonTasks.tasksForDocumentation` these values are automatically "set":
   * javadoc.
   * groovydoc.
   * `documentationAt` overrides this values.

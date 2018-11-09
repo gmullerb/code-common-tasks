@@ -18,6 +18,7 @@ repositories {
 dependencies {
   compile gradleApi()
   testCompile 'all.shared.gradle:spy-project-factory:+'
+  testCompile 'pl.pojo:pojo-tester:+'
   testCompile 'org.junit.jupiter:junit-jupiter-api:+'
   testRuntime 'org.junit.jupiter:junit-jupiter-engine:+'
 }

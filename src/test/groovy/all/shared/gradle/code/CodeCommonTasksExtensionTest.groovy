@@ -20,6 +20,8 @@ import org.gradle.testing.jacoco.tasks.JacocoReportsContainer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+import pl.pojo.tester.api.assertion.Method
+
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 
@@ -31,6 +33,8 @@ import static org.mockito.Mockito.never
 import static org.mockito.Mockito.spy
 import static org.mockito.Mockito.times
 import static org.mockito.Mockito.verify
+
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor
 
 @CompileStatic
 final class CodeCommonTasksExtensionTest {
@@ -44,6 +48,14 @@ final class CodeCommonTasksExtensionTest {
     doReturn(mock(Logger))
       .when(spyTask)
       .getLogger()
+  }
+
+  @Test
+  void shouldWorkAsPogo() {
+    assertPojoMethodsFor(CodeCommonTasksExtension)
+      .testing(Method.GETTER, Method.SETTER)
+      .quickly()
+      .areWellImplemented()
   }
 
   @Test
@@ -65,7 +77,7 @@ final class CodeCommonTasksExtensionTest {
   void shouldComplementAssessTask() {
     mappings[extension.assessTask] (spyTask)
 
-    assertEquals('Analyze and assess code (Main & Test).', spyTask.description)
+    assertEquals('Analyze and assess code (Main, Test & Local).', spyTask.description)
     assertEquals(extension.groupForAssessTasks, spyTask.group)
     assertTrue(spyTask.dependsOn.empty)
     verify(spyTask.logger)
@@ -74,14 +86,14 @@ final class CodeCommonTasksExtensionTest {
 
   @Test
   void shouldComplementAssessMainTaskWithDependencies() {
-    extension.toolsForMainAssess.each { spyProject.tasks.create(it) }
+    extension.tasksForMainAssess.each { spyProject.tasks.create(it) }
     spyTask.description = 'theDescription'
 
     extension.complementAssessMainTask(spyTask)
 
     assertEquals('theDescription', spyTask.description)
     assertEquals(extension.groupForAssessTasks, spyTask.group)
-    assertTrue(spyTask.dependsOn.containsAll(extension.toolsForMainAssess as Set))
+    assertTrue(spyTask.dependsOn.containsAll(extension.tasksForMainAssess as Set))
     verify(spyTask.logger)
       .debug(eq('{} task was complemented'), eq(spyTask))
   }
@@ -148,14 +160,14 @@ final class CodeCommonTasksExtensionTest {
 
   @Test
   void shouldComplementAssessTestTaskWithExternalDependencies() {
-    extension.toolsForTestAssess.each { spyProject.tasks.create(it) }
+    extension.tasksForTestAssess.each { spyProject.tasks.create(it) }
     spyProject.tasks.create(extension.assessMainTask)
 
     extension.complementAssessTestTask(spyTask)
 
     assertEquals('Analyze and assess Test code (Unit & Integration).', spyTask.description)
     assertEquals(extension.groupForAssessTasks, spyTask.group)
-    assertTrue(spyTask.dependsOn.containsAll(extension.toolsForTestAssess as Set))
+    assertTrue(spyTask.dependsOn.containsAll(extension.tasksForTestAssess as Set))
     verify(spyTask)
       .shouldRunAfter(eq(extension.assessMainTask))
     verify(spyTask.logger)
